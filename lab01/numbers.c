@@ -14,7 +14,7 @@ int list[5];
 /* thread function */
 void *print(void *arg)
 {
-	while(flag==0)
+	while(1)
 	{
 		sleep(3);
 		pthread_mutex_lock(&lock);
@@ -35,9 +35,13 @@ void *print(void *arg)
 			}
 			printf("\n");
 		}
+		if(flag==1)
+		{
+			pthread_mutex_unlock(&lock);
+			return;
+		}
 		pthread_mutex_unlock(&lock);
 	}
-	pthread_exit(NULL);
 }
 
 main()
@@ -66,10 +70,13 @@ main()
 		scanf("%s", str);
 		//fgets(str, 80, stdin);
         
+		pthread_mutex_lock(&lock);
+        
 		/* if input 'q', program terminates */
 		if(!strcmp(str, "q"))
 		{
 			flag = 1;
+			pthread_mutex_unlock(&lock);
 			pthread_join(thread, &status);
 			exit(0);
 		}
@@ -80,6 +87,7 @@ main()
 		sprintf(tempstr, "%d", temp);
 		if((!temp && strcmp(str, "0")) || strcmp(str, tempstr))
 		{
+			pthread_mutex_unlock(&lock);
 			continue;
 		}
         
@@ -110,6 +118,9 @@ main()
 			list[3] = list[4];
 			list[4] = temp;
 		}	
+        
+		pthread_mutex_unlock(&lock);
+        
 	}
     
 	return 0;

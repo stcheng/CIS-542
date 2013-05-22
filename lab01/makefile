@@ -1,2 +1,2 @@
 all:
-	gcc -lpthread -o numbers numbers.c
+	cc -g -o numbers -lpthread numbers.c
