@@ -17,10 +17,10 @@ pthread_t socketthread;
 pthread_mutex_t lock;
 
 /* Socket */
-#define PORT_NUMBER 12322
+#define PORT_NUMBER 22210
 
 /* parameter */
-int value;
+char value[80];
 
 void *start_server()
 {
@@ -65,37 +65,41 @@ void *start_server()
     
     while(1)
 	{
+		printf("%s\n", value);
 
-    // 4. accept: wait until we get a connection on that port
-    int sin_size = sizeof(struct sockaddr_in);
-    int fd = accept(sock, (struct sockaddr *)&client_addr,(socklen_t *)&sin_size);
-    printf("Server got a connection from (%s, %d)\n", inet_ntoa(client_addr.sin_addr),ntohs(client_addr.sin_port));
-    
-    // buffer to read data into
-    // char recv_data[1024];
-    
-    // 5. recv: read incoming message into buffer
-    // int bytes_received = recv(fd,recv_data,1024,0);
-    // null-terminate the string
-    // recv_data[bytes_received] = '\0';
-    
-    // printf("Server received message: %s\n", recv_data);
-    
-    // echo back the message to the client
-	pthread_mutex_lock(&lock);
+	    // 4. accept: wait until we get a connection on that port
+	    int sin_size = sizeof(struct sockaddr_in);
+	    int fd = accept(sock, (struct sockaddr *)&client_addr,(socklen_t *)&sin_size);
+	    printf("Server got a connection from (%s, %d)\n", inet_ntoa(client_addr.sin_addr),ntohs(client_addr.sin_port));
+	    
+	    // buffer to read data into
+	    // char recv_data[1024];
+	    
+	    // 5. recv: read incoming message into buffer
+	    // int bytes_received = recv(fd,recv_data,1024,0);
+	    // null-terminate the string
+	    // recv_data[bytes_received] = '\0';
+	    
+	    // printf("Server received message: %s\n", recv_data);
+	    
+	    // echo back the message to the client
+		pthread_mutex_lock(&lock);
 
-	char *send_data = "Thank you!\n";
-	pthread_mutex_unlock(&lock);
+		char send_data[80];
+		strcpy(send_data, value);
+		printf("%s\n", send_data);
 
-    // 6. send: send a message over the socket
-    send(fd, send_data, strlen(send_data), 0);
-    
-    // printf("Server sent message: %s\n", send_data);
-    
-    // 7. close: close the socket connection
-    close(fd);
-    
-    // printf("Server closed connection\n");
+		pthread_mutex_unlock(&lock);
+
+	    // 6. send: send a message over the socket
+	    send(fd, send_data, strlen(send_data), 0);
+	    
+	    // printf("Server sent message: %s\n", send_data);
+	    
+	    // 7. close: close the socket connection
+	    close(fd);
+	    
+	    // printf("Server closed connection\n");
 
 	}
 
@@ -124,29 +128,27 @@ main(int argc, char *argv)
 		exit(1);
 	}
 
-	if(pthread_create(&socketthread, NULL, start_server, NULL))
-	{
-		fprintf(stderr, "Error creating thread.\n");
-		exit(1);
-	}
-	
+	// if(pthread_create(&socketthread, NULL, start_server, NULL))
+	// {
+	// 	fprintf(stderr, "Error creating thread.\n");
+	// 	exit(1);
+	// }
+
+	char str[80];
 
 	while(1)
 	{
 
-
 		char buf[80];
+		memset(buf, 0, 80 * sizeof(char));
 		int bytes_read = read(fd, buf, 80);
-	
+
 		if(bytes_read > 0)
 		{
-			printf("%s", buf);	
-			char *pch;
-			pch = strtok (buf, " ");
-			printf("%s", pch);
-
+			strcat (str, buf);
+			printf("%s and length %i\n", str, sizeof(str));
 		}
-		memset(buf, 0, 80 * sizeof (char));
+
 
 	}
 }
