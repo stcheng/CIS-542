@@ -9,15 +9,13 @@ void update_state(enum actions action, enum states *state) {
 	switch(*state) {
 		case off:
 			switch (action) {
-				case no_change:
-					break;
 				case small_increase:
 					*state = low;
 					break;
 				case large_increase:
 					*state = low;
 					break;
-				case decrease:
+				default:
 					break;
 			}
 			break;
@@ -38,16 +36,14 @@ void update_state(enum actions action, enum states *state) {
 			break;
 		case high:
 			switch (action) {
-				case no_change:
-					break;
-				case small_increase:
-					break;
 				case large_increase:
 					*state = panic;
 					break;
 				case decrease:
 					*state = low;
-					break;					
+					break;	
+				default:
+					break;				
 			}
 			break;
 		case panic:
@@ -55,12 +51,10 @@ void update_state(enum actions action, enum states *state) {
 				case no_change:
 					*state = high;
 					break;
-				case small_increase:
-					break;
-				case large_increase:
-					break;
 				case decrease:
 					*state = low;
+					break;
+				default:
 					break;					
 			}
 			break;
@@ -72,11 +66,46 @@ void update_state(enum actions action, enum states *state) {
  * the current amount being given and the blood glucose level
  */
 int calculate_insulin(int bg, int insulin, enum states state) {
-   
-  /*
-    TODO: implement the calculation of insulin
-    should always return a value between 0 and 12
-  */
-  
-  return 0;
+
+    switch (state) {
+    	case low:
+    		if (bg >= 20 && bg <= 50) {
+    			return 0;
+    		} else if (bg >= 51 && bg <= 70) {
+    			return (insulin-2<0)?0:insulin-2;
+    		} else if (bg >= 71 && bg <= 90) {
+    			return (insulin-1<0)?0:insulin-1;
+    		} else if (bg >= 91 && bg <= 120) {
+    			return (insulin+1>12)?12:insulin+1;
+    		} else if (bg > 120) {
+    			return (insulin+2>12)?12:insulin+2;
+    		}
+    	case high:
+    		if (bg >= 20 && bg <= 50) {
+    			return 0;
+    		} else if (bg >= 51 && bg <= 70) {
+    			return (insulin-3<0)?0:insulin-3;
+    		} else if (bg >= 71 && bg <= 90) {
+    			return (insulin-2<0)?0:insulin-2;
+    		} else if (bg >= 91 && bg <= 120) {
+    			return (insulin+2>12)?12:insulin+2;
+    		} else if (bg > 120) {
+    			return (insulin+3>12)?12:insulin+3;
+    		}
+    	case panic:
+    		if (bg >= 20 && bg <= 50) {
+    			return 0;
+    		} else if (bg >= 51 && bg <= 70) {
+    			return (insulin-4<0)?0:insulin-4;
+    		} else if (bg >= 71 && bg <= 90) {
+    			return (insulin-3<0)?0:insulin-3;
+    		} else if (bg >= 91 && bg <= 120) {
+    			return (insulin+3>12)?12:insulin+3;
+    		} else if (bg > 120) {
+    			return (insulin+5>12)?12:insulin+5;
+    		}
+    	default:
+    		break;
+    }
+    return 0;
 }

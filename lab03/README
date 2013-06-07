@@ -1,0 +1,3 @@
+NOTE:
+while running test1 with gcov, the percentage doesn't go to 100%. this is because the first test case does not cover the deliver_insulin function part. however, while checking the gcov file, it is obvious that the first function's every line is run. this zip ball includes the gcov that is produced during the test2 in which i put all the test cases - both test1 and 2, so that the percentage goes to 100%. the record shows the process i took. thank you.
+ - shuotian

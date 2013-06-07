@@ -1,0 +1,116 @@
+        -:    0:Source:insulin_controller.c
+        -:    0:Graph:insulin_controller.gcno
+        -:    0:Data:insulin_controller.gcda
+        -:    0:Runs:0
+        -:    0:Programs:0
+        -:    1:
+        -:    2:enum states {off, low, high, panic};
+        -:    3:enum actions {no_change, small_increase, large_increase, decrease};
+        -:    4:
+        -:    5:/*
+        -:    6: * This is the controller.
+        -:    7: */
+       13:    8:void update_state(enum actions action, enum states *state) {
+       13:    9:	switch(*state) {
+        -:   10:		case off:
+        3:   11:			switch (action) {
+        -:   12:				case small_increase:
+        1:   13:					*state = low;
+        1:   14:					break;
+        -:   15:				case large_increase:
+        1:   16:					*state = low;
+        1:   17:					break;
+        -:   18:				default:
+        1:   19:					break;
+        -:   20:			}
+        3:   21:			break;
+        -:   22:		case low:
+        4:   23:			switch (action) {
+        -:   24:				case no_change:
+        -:   25:					break;
+        -:   26:				case small_increase:
+        1:   27:					*state = high;
+        1:   28:					break;
+        -:   29:				case large_increase:
+        1:   30:					*state = panic;
+        1:   31:					break;
+        -:   32:				case decrease:
+        1:   33:					*state = off;
+        1:   34:					break;					
+        -:   35:			}
+        4:   36:			break;
+        -:   37:		case high:
+        3:   38:			switch (action) {
+        -:   39:				case large_increase:
+        1:   40:					*state = panic;
+        1:   41:					break;
+        -:   42:				case decrease:
+        1:   43:					*state = low;
+        1:   44:					break;	
+        -:   45:				default:
+        1:   46:					break;				
+        -:   47:			}
+        3:   48:			break;
+        -:   49:		case panic:
+        3:   50:			switch (action) {
+        -:   51:				case no_change:
+        1:   52:					*state = high;
+        1:   53:					break;
+        -:   54:				case decrease:
+        1:   55:					*state = low;
+        1:   56:					break;
+        -:   57:				default:
+        1:   58:					break;					
+        -:   59:			}
+        3:   60:			break;
+        -:   61:	}  
+       13:   62:}
+        -:   63:
+        -:   64:/*
+        -:   65: * This determines how much insulin to deliver in this state, given
+        -:   66: * the current amount being given and the blood glucose level
+        -:   67: */
+       16:   68:int calculate_insulin(int bg, int insulin, enum states state) {
+        -:   69:
+       16:   70:    switch (state) {
+        -:   71:    	case low:
+       10:   72:    		if (bg >= 20 && bg <= 50) {
+        1:   73:    			return 0;
+        8:   74:    		} else if (bg >= 51 && bg <= 70) {
+        3:   75:    			return (insulin-2<0)?0:insulin-2;
+        6:   76:    		} else if (bg >= 71 && bg <= 90) {
+        3:   77:    			return (insulin-1<0)?0:insulin-1;
+        4:   78:    		} else if (bg >= 91 && bg <= 120) {
+        3:   79:    			return (insulin+1>12)?12:insulin+1;
+        1:   80:    		} else if (bg > 120) {
+        3:   81:    			return (insulin+2>12)?12:insulin+2;
+        -:   82:    		}
+        -:   83:    	case high:
+       10:   84:    		if (bg >= 20 && bg <= 50) {
+        1:   85:    			return 0;
+        8:   86:    		} else if (bg >= 51 && bg <= 70) {
+        3:   87:    			return (insulin-3<0)?0:insulin-3;
+        6:   88:    		} else if (bg >= 71 && bg <= 90) {
+        3:   89:    			return (insulin-2<0)?0:insulin-2;
+        4:   90:    		} else if (bg >= 91 && bg <= 120) {
+        3:   91:    			return (insulin+2>12)?12:insulin+2;
+        1:   92:    		} else if (bg > 120) {
+        3:   93:    			return (insulin+3>12)?12:insulin+3;
+        -:   94:    		}
+        -:   95:    	case panic:
+       10:   96:    		if (bg >= 20 && bg <= 50) {
+        1:   97:    			return 0;
+        8:   98:    		} else if (bg >= 51 && bg <= 70) {
+        3:   99:    			return (insulin-4<0)?0:insulin-4;
+        6:  100:    		} else if (bg >= 71 && bg <= 90) {
+        3:  101:    			return (insulin-3<0)?0:insulin-3;
+        4:  102:    		} else if (bg >= 91 && bg <= 120) {
+        3:  103:    			return (insulin+3>12)?12:insulin+3;
+        1:  104:    		} else if (bg > 120) {
+        3:  105:    			return (insulin+5>12)?12:insulin+5;
+        -:  106:    		}
+        -:  107:    	default:
+        1:  108:    		break;
+        -:  109:    }
+        1:  110:    return 0;
+       16:  111:}/*EOF*/

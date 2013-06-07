@@ -1,0 +1,37 @@
+Script started on Fri Jun  7 09:57:40 2013
+[?1034hbash-3.2$ ls
+[32minsulin-test2[39;49m[0m             insulin_test1.c           insulin_test2.gcno
+insulin_controller.c      insulin_test1.gcda        makefile
+insulin_controller.c.gcov insulin_test1.gcno        record
+insulin_controller.gcda   insulin_test2.c
+insulin_controller.gcno   insulin_test2.gcda
+bash-3.2$ make insulin-e[Ktest2-groc[K[K[Kcov
+cc -fprofile-arcs -ftest-coverage -o insulin-test2 insulin_test2.c insulin_controller.c
+bash-3.2$ /[K./insulin-test2
+Test succeed.
+Test succeed.
+Test succeed.
+Test succeed.
+Test succeed.
+Test succeed.
+Test succeed.
+Test succeed.
+Test succeed.
+Test succeed.
+Test succeed.
+Test succeed.
+Test succeed.
+Test succeed.
+Test succeed.
+Test succeed.
+bash-3.2$ gcov insulin-t[K[K_controller.c
+File 'insulin_controller.c'
+Lines executed:100.00% of 67
+insulin_controller.c:creating 'insulin_controller.c.gcov'
+
+bash-3.2$ logout
+bash: logout: not login shell: use `exit'
+bash-3.2$ exit
+exit
+
+Script done on Fri Jun  7 09:58:41 2013

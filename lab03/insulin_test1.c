@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define failure(s) if(state != s) {printf("Test failed.\n");exit(0);}
+
 enum states {off, low, high, panic};
 enum actions {no_change, small_increase, large_increase, decrease};
 
@@ -15,29 +17,65 @@ int main() {
 
   /* TEST #1: transition from off to low */
   state = off;
+  action = decrease;
+  update_state(action, &state);
+  failure(off);
+  state = off;
   action = small_increase;
   update_state(action, &state);
-  if (state != low) {
-    printf("Test failed: transition from off to low\n");
-    exit(0);
-  }
-  else {
-    printf("good job.\n");
-  }
-
-  /* TEST #2: transition from low to high */
+  failure(low);
+  state = off;
+  action = large_increase;
   update_state(action, &state);
-  if (state != high) {
-    printf("Test failed: transition from off to low\n");
-    exit(0);
-  }
-  else {
-    printf("good job again.\n");
-  }
-  /*
-    TODO: implement the rest of the test cases
-  */
+  failure(low);
 
-    return 0;
+
+  state = low;
+  action = decrease;
+  update_state(action, &state);
+  failure(off);
+  state = low;
+  action = small_increase;
+  update_state(action, &state);
+  failure(high);
+  state = low;
+  action = large_increase;
+  update_state(action, &state);
+  failure(panic);
+  state = low;
+  action = no_change;
+  update_state(action, &state);
+  failure(low);
+
+  state = high;
+  action = no_change;
+  update_state(action, &state);
+  failure(high);
+  state = high;
+  action = decrease;
+  update_state(action, &state);
+  failure(low);
+  state = high;
+  action = large_increase;
+  update_state(action, &state);
+  failure(panic);
+
+  state = panic;
+  action = no_change;
+  update_state(action, &state);
+  failure(high);
+  state = panic;
+  action = decrease;
+  update_state(action, &state);
+  failure(low);
+  state = panic;
+  action = small_increase;
+  update_state(action, &state);
+  failure(panic);
+
+
+
+
+  return 0;
 
 }
