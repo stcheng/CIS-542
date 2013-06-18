@@ -24,7 +24,12 @@
 pthread_t socketthread_recv;
 pthread_t socketthread_send;
 pthread_mutex_t lock;
-int is_running = 1;
+
+
+
+
+
+int is_sock_running = 0;
 
 /* parameter */
 char str[80];
@@ -79,22 +84,33 @@ void *start_server(void *arg)
 
 
 	int sin_size = sizeof(struct sockaddr_in);
-	int fd = accept(sock, (struct sockaddr *)&client_addr,(socklen_t *)&sin_size);
-	printf("Server got a connection from (%s, %d)\n", inet_ntoa(client_addr.sin_addr),ntohs(client_addr.sin_port));
 
-	pthread_create(&socketthread_send, NULL, thread_send, (void *)&fd);
-
-	printf("Start receiving.\n");
-	char buf[MAX_LINE];
-
-	while (is_running)
+	while (1  /*  && is_running */)
 	{
-		while (recv(fd, buf, sizeof(buf), 0) > 0)
-		{
-			printf("%s\n", buf);
-			memset(buf, 0, MAX_LINE * sizeof(char));
-		}		
+		int fd = accept(sock, (struct sockaddr *)&client_addr,(socklen_t *)&sin_size);
+		printf("Server got a connection from (%s, %d)\n", inet_ntoa(client_addr.sin_addr),ntohs(client_addr.sin_port));
+
+		is_sock_running = 1;
+		
+		pthread_create(&socketthread_recv, NULL, thread_recv, (void *)&fd);
+		pthread_create(&socketthread_send, NULL, thread_send, (void *)&fd);
 	}
+	
+
+	// printf("Start receiving.\n");
+	// char buf[MAX_LINE];
+
+
+	// while (recv(fd, buf, sizeof(buf), 0) > 0 && is_sock_running)
+	// {
+	// 	printf("%s\n", buf);
+	// 	if (buf[0] == '$')
+	// 	{
+	// 		printf("quit!!!\n");
+	// 		is_sock_running = 0;
+	// 	}
+	// 	memset(buf, 0, MAX_LINE * sizeof(char));
+	// }		
     // 4. accept: wait until we get a connection on that port
     
     //     	int sin_size = sizeof(struct sockaddr_in);
@@ -171,46 +187,47 @@ void *start_server(void *arg)
     // printf("Server sent message: %s\n", send_data);
     
     // 7. close: close the socket connection
-    printf("Server closed connection\n");
-    close(fd);
+
 
 
 	
 
 }
 
-void *thread_send(void *arg) {
-	printf("Start sending.\n");
+void *thread_recv(void *arg) {
 	int sock = *((int *) arg);
+	printf("Start receiving from socket: %d\n", sock);
+
 	char buf[MAX_LINE];
 
-	while(1)
+	while (recv(sock, buf, sizeof(buf), 0) > 0 && is_sock_running)
 	{
+		printf("%s\n", buf);
+		if (buf[0] == '$')
+		{
+			printf("quit!!!\n");
+			is_sock_running = 0;
+		}
+		memset(buf, 0, MAX_LINE * sizeof(char));
+	}		
 
-			
-			if (str[strlen(str)-1] == '\n') 
-			{
+    printf("Server closed connection\n");
+    close(sock);
 
-				send(sock, str, strlen(str), 0);
-				
-					
-				memset(str, 0, 80 * sizeof(char));
-			}
+}
 
+void *thread_send(void *arg) {
+	int sock = *((int *) arg);
+	printf("Start sending to socket: %d\n", sock);
 
-			// if (strlen(str) != 0) 
-			// {
-			// 	send(sock, str, strlen(str), 0);
-			// 	memset(str, 0, 80 * sizeof(char));
-			// }
+	char buf[MAX_LINE];
 
-		// while (fgets(buf, sizeof(buf), stdin) > 0)
-		// {
-		// 	if (buf == "quit")
-		// 		is_running = 0;
-		// 	send(sock, buf, strlen(buf), 0);
-		// 	memset(buf, 0, MAX_LINE * sizeof(char));
-		// }
+	while (fgets(buf, sizeof(buf), stdin) > 0 && is_sock_running)
+	{
+		if (buf == "quit")
+			is_sock_running = 0;
+		send(sock, buf, strlen(buf), 0);
+		memset(buf, 0, MAX_LINE * sizeof(char));
 	}
 
 }
