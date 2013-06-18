@@ -1,0 +1,22 @@
+####### LAB 04 #######
+
+--- Fault Tolerance ---
+
+Time Record:
+			Reliability	Total Time
+	mergesort	25% - 75%	15s - 17s
+	quicksort	30% - 80%	13s - 15s
+	heapsort	100.00%		32s - 35s
+	recovery	100.00%		18s - 22s
+	nversion	100.00%		20s - 25s
+
+1. Recovery is better in this case. Because in the nversion version,
+every case's time is the slowest case's time; but in recovery program,
+there's always possibility that quick sort or merge sort does good job
+and the total time is less than doing a merge sort.
+
+2. In order to understand the time expectation, we can set p1, p2, p3
+as mergesort's, quicksort's, and heapsort's reliability, and t1, t2,
+t3 as their time cost. Then the expectation of recovery is
+t1 * p1 + (t1+t2) * (1-p1) * p2 + (t1+t2+t3) * (1-p1) * (1-p2) * p3
+and the expectation time of nversion is just t3 for each case.
